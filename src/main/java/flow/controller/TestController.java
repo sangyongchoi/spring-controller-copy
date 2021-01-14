@@ -8,8 +8,13 @@ public class TestController {
     public TestController() {
     }
 
-    @GetMapping
-    public String getMapping(){
-        return "";
+    @GetMapping("/controllergettest")
+    public String controllerGetMapping(){
+        return "controller get";
+    }
+
+    @GetMapping("/controllerposttest")
+    public String controllerPostMapping(){
+        return "controller post";
     }
 }
