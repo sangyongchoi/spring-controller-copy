@@ -29,9 +29,10 @@ public class HandlerMapping {
 
         if (fileList != null) {
             try {
-                for (int i = 0; i < fileList.length; i++) {
-                    File file = fileList[i];
-                    if (file.isFile()) {
+                for (File file : fileList) {
+                    if (file.isDirectory()) {
+                        subDirList(file.getCanonicalPath());
+                    } else if (file.isFile()) {
                         String path = file.getPath();
 
                         if (path.endsWith(".class")) {
@@ -41,18 +42,14 @@ public class HandlerMapping {
                             Class<?> aClass = Class.forName(className);
                             if (aClass.isAnnotationPresent(Controller.class)) {
                                 Method[] methods = aClass.getMethods();
-                                for (Method m : methods) {
-                                    addPageHandler(aClass, m);
-                                }
+                                Arrays.stream(methods)
+                                        .forEach(m -> addPageHandler(aClass, m));
                             } else if (aClass.isAnnotationPresent(RestController.class)) {
                                 Method[] methods = aClass.getMethods();
-                                for (Method m : methods) {
-                                    addRestHandler(aClass, m);
-                                }
+                                Arrays.stream(methods)
+                                        .forEach(m -> addRestHandler(aClass, m));
                             }
                         }
-                    } else if (file.isDirectory()) {
-                        subDirList(file.getCanonicalPath());
                     }
                 }
             } catch (IOException | ClassNotFoundException e) {
@@ -65,7 +62,7 @@ public class HandlerMapping {
         if (m.isAnnotationPresent(PostMapping.class)) {
             addPostHandler(aClass, m, MethodType.PAGE);
         } else if (m.isAnnotationPresent(GetMapping.class)) {
-            addPostHandler(aClass, m, MethodType.PAGE);
+            addGetMapping(aClass, m, MethodType.PAGE);
         }
     }
 
