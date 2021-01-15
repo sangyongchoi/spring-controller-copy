@@ -7,12 +7,12 @@ import flow.annotation.RestController;
 @RestController
 public class RestTestController {
 
-    @PostMapping("/restpostmapping")
+    @PostMapping("/rest/posttest")
     public String restPostMapping(){
         return "post";
     }
 
-    @GetMapping("/restgetmapping")
+    @GetMapping("/rest/gettest")
     public String restGetMapping(){
         return "get";
     }

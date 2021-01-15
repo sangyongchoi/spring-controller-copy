@@ -3,14 +3,14 @@ package flow.filter;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
+import java.io.PrintWriter;
 
 public class ControllerFilter implements Filter {
 
     HandlerMapping handlerMapping = new HandlerMapping();
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
         handlerMapping.init();
     }
 
@@ -19,16 +19,23 @@ public class ControllerFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         String method = request.getMethod();
         String requestURI = request.getRequestURI();
-        if (handlerMapping.isPageRequest(requestURI)) {
-            Object invoke = handlerMapping.invoke(requestURI);
-            RequestDispatcher requestDispatcher = servletRequest.getRequestDispatcher(invoke.toString());
-            requestDispatcher.forward(servletRequest, servletResponse);
-        } else if (handlerMapping.isApiRequest(requestURI)) {
-            Object invoke = handlerMapping.invoke(requestURI);
-        } else {
-            RequestDispatcher requestDispatcher = servletRequest.getRequestDispatcher("/hello.html");
-            requestDispatcher.forward(servletRequest, servletResponse);
-            //filterChain.doFilter(servletRequest, servletResponse);
+
+        if("Get".equals(method) || "POST".equals(method)) {
+            if (handlerMapping.isPageRequest(requestURI)) {
+                Object invoke = handlerMapping.invoke(requestURI);
+                RequestDispatcher requestDispatcher = servletRequest.getRequestDispatcher(invoke.toString());
+                requestDispatcher.forward(servletRequest, servletResponse);
+            } else if (handlerMapping.isApiRequest(requestURI)) {
+                Object invoke = handlerMapping.invoke(requestURI);
+                servletResponse.setContentType("application/json");
+
+                try (PrintWriter writer = servletResponse.getWriter()) {
+                    writer.write("{ \"result\": \"" + invoke.toString() + "\"}");
+                    writer.flush();
+                }
+            }
+        }else {
+            filterChain.doFilter(servletRequest, servletResponse);
         }
     }
 
