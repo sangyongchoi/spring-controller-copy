@@ -8,13 +8,13 @@ public class TestController {
     public TestController() {
     }
 
-    @GetMapping("/controllergettest")
+    @GetMapping("/index")
     public String controllerGetMapping(){
-        return "controller get";
+        return "/index.jsp";
     }
 
-    @GetMapping("/controllerposttest")
+    @GetMapping("/test")
     public String controllerPostMapping(){
-        return "controller post";
+        return "/test.jsp";
     }
 }

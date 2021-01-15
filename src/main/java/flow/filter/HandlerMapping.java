@@ -8,6 +8,7 @@ import flow.annotation.RestController;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,7 +21,6 @@ public class HandlerMapping {
 
     public void init(){
         subDirList(MainApplication.class.getResource(".").getPath());
-        System.out.println("111");
     }
 
     private void subDirList(String source) {
@@ -96,5 +96,29 @@ public class HandlerMapping {
         }else{
             restController.put(value, methodInvoker);
         }
+    }
+
+    public Object invoke(String requestURI) {
+        try{
+            if (isApiRequest(requestURI)) {
+                MethodInvoker methodInvoker = restController.get(requestURI);
+                return methodInvoker.invoke();
+            } else if (isPageRequest(requestURI)) {
+                MethodInvoker methodInvoker = controller.get(requestURI);
+                return methodInvoker.invoke();
+            }
+        } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public boolean isPageRequest(String requestUri) {
+        return controller.containsKey(requestUri);
+    }
+
+    public boolean isApiRequest(String requestUri) {
+        return restController.containsKey(requestUri);
     }
 }
