@@ -19,8 +19,8 @@ public class ControllerFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         String method = request.getMethod();
         String requestURI = request.getRequestURI();
-
-        if("Get".equals(method) || "POST".equals(method)) {
+        System.out.println(method);
+        if("GET".equals(method) || "POST".equals(method)) {
             if (handlerMapping.isPageRequest(requestURI)) {
                 Object invoke = handlerMapping.invoke(requestURI);
                 RequestDispatcher requestDispatcher = servletRequest.getRequestDispatcher(invoke.toString());
