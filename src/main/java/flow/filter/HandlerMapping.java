@@ -114,11 +114,11 @@ public class HandlerMapping {
         return null;
     }
 
-    public boolean isPageRequest(String requestUri) {
-        return controller.containsKey(requestUri);
+    public boolean isPageRequest(String requestURI) {
+        return controller.containsKey(requestURI);
     }
 
-    public boolean isApiRequest(String requestUri) {
-        return restController.containsKey(requestUri);
+    public boolean isApiRequest(String requestURI) {
+        return restController.containsKey(requestURI);
     }
 }
