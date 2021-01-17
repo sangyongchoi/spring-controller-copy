@@ -1,7 +1,5 @@
 package flow.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -19,13 +17,20 @@ public class MethodInvoker {
         this.method = method;
     }
 
-    public Object invoke() throws InvocationTargetException, IllegalAccessException, InstantiationException {
+    public Object invoke(Object[] parameter) throws InvocationTargetException, IllegalAccessException, InstantiationException {
         try{
-
-            return method.invoke(aClass.newInstance());
+            if(parameter.length == 0) {
+                return method.invoke(aClass.newInstance());
+            }else{
+                return method.invoke(aClass.newInstance(), parameter);
+            }
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    public Method getMethod() {
+        return method;
     }
 }

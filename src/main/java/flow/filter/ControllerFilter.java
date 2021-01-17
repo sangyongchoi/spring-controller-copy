@@ -22,11 +22,11 @@ public class ControllerFilter implements Filter {
 
         if("GET".equals(method) || "POST".equals(method)) {
             if (handlerMapping.isPageRequest(requestURI)) {
-                Object invoke = handlerMapping.invoke(requestURI);
+                Object invoke = handlerMapping.invoke(request);
                 RequestDispatcher requestDispatcher = servletRequest.getRequestDispatcher(invoke.toString());
                 requestDispatcher.forward(servletRequest, servletResponse);
             } else if (handlerMapping.isApiRequest(requestURI)) {
-                Object invoke = handlerMapping.invoke(requestURI);
+                Object invoke = handlerMapping.invoke(request);
                 servletResponse.setContentType("application/json");
 
                 try (PrintWriter writer = servletResponse.getWriter()) {
@@ -42,4 +42,5 @@ public class ControllerFilter implements Filter {
     @Override
     public void destroy() {
     }
+
 }

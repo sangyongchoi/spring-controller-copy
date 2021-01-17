@@ -8,7 +8,7 @@ import flow.annotation.RestController;
 public class RestTestController {
 
     @PostMapping("/rest/posttest")
-    public String restPostMapping(){
+    public String restPostMapping(String test){
         return "post";
     }
 

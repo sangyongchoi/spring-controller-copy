@@ -1,16 +1,21 @@
 package flow.filter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sun.org.apache.xpath.internal.objects.XObject;
 import flow.MainApplication;
 import flow.annotation.Controller;
 import flow.annotation.GetMapping;
 import flow.annotation.PostMapping;
 import flow.annotation.RestController;
+import flow.common.CommonUtil;
 
-import java.io.File;
-import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -98,16 +103,18 @@ public class HandlerMapping {
         }
     }
 
-    public Object invoke(String requestURI) {
+    public Object invoke(HttpServletRequest request) {
         try{
+            String requestURI = request.getRequestURI();
+
             if (isApiRequest(requestURI)) {
                 MethodInvoker methodInvoker = restController.get(requestURI);
-                return methodInvoker.invoke();
+                return methodInvoker.invoke(getParameter(request, methodInvoker.getMethod()));
             } else if (isPageRequest(requestURI)) {
                 MethodInvoker methodInvoker = controller.get(requestURI);
-                return methodInvoker.invoke();
+                return methodInvoker.invoke(getParameter(request, methodInvoker.getMethod()));
             }
-        } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+        } catch (InvocationTargetException | IllegalAccessException | InstantiationException | IOException e) {
             e.printStackTrace();
         }
 
@@ -120,5 +127,62 @@ public class HandlerMapping {
 
     public boolean isApiRequest(String requestURI) {
         return restController.containsKey(requestURI);
+    }
+
+    private Object[] getParameter(HttpServletRequest request, Method method) throws IOException {
+        Parameter[] parameters = method.getParameters();
+        Object[] requestParameter = new Object[parameters.length];
+
+        String body = getBody(request);
+        System.out.println(body);
+
+        for (int i = 0; i < parameters.length; i++) {
+            Parameter parameter = parameters[i];
+            String parameterName = parameter.getName();
+            String inputParameter = request.getParameter(parameterName);
+
+            try {
+                requestParameter[i] = CommonUtil.objectMapper.readValue(inputParameter, parameter.getClass());
+                System.out.println(inputParameter);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return requestParameter;
+    }
+
+    private String getBody(HttpServletRequest request) throws IOException {
+
+        String body = null;
+        StringBuilder stringBuilder = new StringBuilder();
+        BufferedReader bufferedReader = null;
+
+        try {
+            InputStream inputStream = request.getInputStream();
+            if (inputStream != null) {
+                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                char[] charBuffer = new char[128];
+                int bytesRead = -1;
+                while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+                    stringBuilder.append(charBuffer, 0, bytesRead);
+                }
+            } else {
+                stringBuilder.append("");
+            }
+        } catch (IOException ex) {
+            throw ex;
+        } finally {
+            if (bufferedReader != null) {
+                try {
+                    bufferedReader.close();
+                } catch (IOException ex) {
+                    throw ex;
+                }
+            }
+        }
+
+        body = stringBuilder.toString();
+        return body;
     }
 }
