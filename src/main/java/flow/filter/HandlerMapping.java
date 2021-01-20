@@ -8,6 +8,7 @@ import flow.annotation.GetMapping;
 import flow.annotation.PostMapping;
 import flow.annotation.RestController;
 import flow.common.CommonUtil;
+import flow.dto.TestDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
@@ -134,32 +135,34 @@ public class HandlerMapping {
         Object[] requestParameter = new Object[parameters.length];
 
         String body = getBody(request);
+        Object[] result = new Object[1];
         System.out.println(body);
+        result[0] = CommonUtil.objectMapper.readValue(body, TestDto.class);
 
-        for (int i = 0; i < parameters.length; i++) {
-            Parameter parameter = parameters[i];
-            String parameterName = parameter.getName();
-            String inputParameter = request.getParameter(parameterName);
-
-            try {
-                requestParameter[i] = CommonUtil.objectMapper.readValue(inputParameter, parameter.getClass());
-                System.out.println(inputParameter);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return requestParameter;
+        return result;
+//        for (int i = 0; i < parameters.length; i++) {
+//            Parameter parameter = parameters[i];
+//            String parameterName = parameter.getName();
+//            String inputParameter = request.getParameter(parameterName);
+//
+//            try {
+//                requestParameter[i] = CommonUtil.objectMapper.readValue(inputParameter, parameter.getClass());
+//                System.out.println(inputParameter);
+//            } catch (JsonProcessingException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        return requestParameter;
     }
 
     private String getBody(HttpServletRequest request) throws IOException {
 
-        String body = null;
         StringBuilder stringBuilder = new StringBuilder();
         BufferedReader bufferedReader = null;
-
+        InputStream inputStream = null;
         try {
-            InputStream inputStream = request.getInputStream();
+            inputStream = request.getInputStream();
             if (inputStream != null) {
                 bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                 char[] charBuffer = new char[128];
@@ -167,22 +170,12 @@ public class HandlerMapping {
                 while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
                     stringBuilder.append(charBuffer, 0, bytesRead);
                 }
-            } else {
-                stringBuilder.append("");
             }
-        } catch (IOException ex) {
-            throw ex;
         } finally {
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                } catch (IOException ex) {
-                    throw ex;
-                }
-            }
+            if (bufferedReader != null) { try { bufferedReader.close(); } catch (IOException ex) { throw ex; } }
+            if (inputStream != null) { try { inputStream.close(); } catch (IOException ex) {throw ex;} }
         }
 
-        body = stringBuilder.toString();
-        return body;
+        return stringBuilder.toString();
     }
 }
