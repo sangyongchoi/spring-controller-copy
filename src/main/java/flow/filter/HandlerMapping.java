@@ -159,23 +159,18 @@ public class HandlerMapping {
     private String getBody(HttpServletRequest request) throws IOException {
 
         StringBuilder stringBuilder = new StringBuilder();
-        BufferedReader bufferedReader = null;
-        InputStream inputStream = null;
-        try {
-            inputStream = request.getInputStream();
+
+        try(InputStream inputStream = request.getInputStream()) {
             if (inputStream != null) {
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                char[] charBuffer = new char[128];
-                int bytesRead = -1;
-                while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-                    stringBuilder.append(charBuffer, 0, bytesRead);
+                try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
+                    char[] charBuffer = new char[128];
+                    int bytesRead = -1;
+                    while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+                        stringBuilder.append(charBuffer, 0, bytesRead);
+                    }
                 }
             }
-        } finally {
-            if (bufferedReader != null) { try { bufferedReader.close(); } catch (IOException ex) { throw ex; } }
-            if (inputStream != null) { try { inputStream.close(); } catch (IOException ex) {throw ex;} }
         }
-
         return stringBuilder.toString();
     }
 }
