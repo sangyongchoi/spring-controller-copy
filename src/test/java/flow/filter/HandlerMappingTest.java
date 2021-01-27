@@ -1,14 +1,11 @@
 package flow.filter;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import flow.dto.TestDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -196,5 +193,31 @@ class HandlerMappingTest {
         assertEquals(2, testDto.getList().size());
         assertNotNull(testDto.getMap().get("test"));
         assertNotNull(testDto.getMap().get("test1"));
+    }
+
+    @Test
+    @DisplayName("Json -> Class Convert Fail Test")
+    public void parameter_convert_test_fail_json2Class() throws Exception{
+        assertThrows(UnrecognizedPropertyException.class, () -> {
+            String json = "{\n" +
+                    "    \"number11\":\"123\",\n" +
+                    "    \"wrapperNumber\":\"1234\",\n" +
+                    "    \"list\" : [\n" +
+                    "        {\n" +
+                    "            \"test\":\"test\",\n" +
+                    "            \"title\":\"title\"\n" +
+                    "        },\n" +
+                    "        {\n" +
+                    "            \"test\":\"test1\",\n" +
+                    "            \"title\":\"title2\"\n" +
+                    "        }\n" +
+                    "    ],\n" +
+                    "    \"map\" : {\n" +
+                    "        \"test\":\"123\",\n" +
+                    "        \"test1\":\"456\"\n" +
+                    "    }\n" +
+                    "}";
+            TestDto testDto = objectMapper.readValue(json, TestDto.class);
+        });
     }
 }
