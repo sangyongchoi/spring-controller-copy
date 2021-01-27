@@ -3,6 +3,8 @@ Spring Framework의 Controller를 모방해서 만든 간단한 Controller 입�
 
 # Tech
 - java 1.8
+- jackson 2.11
+- JUnit5 
 
 # Annotation
 @Controller
