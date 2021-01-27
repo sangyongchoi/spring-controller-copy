@@ -6,7 +6,6 @@ import flow.annotation.GetMapping;
 import flow.annotation.PostMapping;
 import flow.annotation.RestController;
 import flow.common.CommonUtil;
-import flow.dto.TestDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
@@ -129,28 +128,16 @@ public class HandlerMapping {
 
     private Object[] getParameter(HttpServletRequest request, Method method) throws IOException {
         Parameter[] parameters = method.getParameters();
-        Object[] requestParameter = new Object[parameters.length];
+        if (parameters.length == 0) {
+            return new Object[0];
+        }
 
         String body = getBody(request);
         Object[] result = new Object[1];
-        System.out.println(body);
-        result[0] = CommonUtil.objectMapper.readValue(body, TestDto.class);
+        Parameter parameter = parameters[0];
+        result[0] = CommonUtil.objectMapper.readValue(body, parameter.getType());
 
         return result;
-//        for (int i = 0; i < parameters.length; i++) {
-//            Parameter parameter = parameters[i];
-//            String parameterName = parameter.getName();
-//            String inputParameter = request.getParameter(parameterName);
-//
-//            try {
-//                requestParameter[i] = CommonUtil.objectMapper.readValue(inputParameter, parameter.getClass());
-//                System.out.println(inputParameter);
-//            } catch (JsonProcessingException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        return requestParameter;
     }
 
     private String getBody(HttpServletRequest request) throws IOException {

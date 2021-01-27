@@ -20,7 +20,7 @@ public class ControllerFilter implements Filter {
         String method = request.getMethod();
         String requestURI = request.getRequestURI();
 
-        if("GET".equals(method) || "POST".equals(method)) {
+        if(isAccessible(method)) {
             if (handlerMapping.isPageRequest(requestURI)) {
                 Object invoke = handlerMapping.invoke(request);
                 RequestDispatcher requestDispatcher = servletRequest.getRequestDispatcher(invoke.toString());
@@ -41,6 +41,10 @@ public class ControllerFilter implements Filter {
 
     @Override
     public void destroy() {
+    }
+    
+    private boolean isAccessible(String method){
+        return "GET".equals(method) || "POST".equals(method);
     }
 
 }

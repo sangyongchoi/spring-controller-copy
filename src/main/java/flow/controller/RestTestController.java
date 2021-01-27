@@ -10,6 +10,7 @@ public class RestTestController {
 
     @PostMapping("/rest/posttest")
     public String restPostMapping(TestDto test){
+        System.out.println(test);
         return "post";
     }
 
