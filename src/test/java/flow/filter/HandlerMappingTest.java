@@ -1,12 +1,16 @@
 package flow.filter;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import flow.dto.TestDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class HandlerMappingTest {
 
@@ -130,5 +134,67 @@ class HandlerMappingTest {
         }
 
         assertEquals("123", json);
+    }
+
+    @Test
+    @DisplayName("Json -> Class Convert Test")
+    public void parameter_convert_test_success_json2Class() throws Exception{
+        String json = "{\n" +
+                "    \"name\" : \"test\",\n" +
+                "    \"number\":\"123\",\n" +
+                "    \"wrapperNumber\":\"1234\",\n" +
+                "    \"list\" : [\n" +
+                "        {\n" +
+                "            \"test\":\"test\",\n" +
+                "            \"title\":\"title\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"test\":\"test1\",\n" +
+                "            \"title\":\"title2\"\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"map\" : {\n" +
+                "        \"test\":\"123\",\n" +
+                "        \"test1\":\"456\"\n" +
+                "    }\n" +
+                "}";
+        TestDto testDto = objectMapper.readValue(json, TestDto.class);
+
+        assertEquals("test", testDto.getName());
+        assertEquals(123, testDto.getNumber());
+        assertEquals(1234, testDto.getWrapperNumber());
+        assertEquals(2, testDto.getList().size());
+        assertNotNull(testDto.getMap().get("test"));
+        assertNotNull(testDto.getMap().get("test1"));
+    }
+
+    @Test
+    @DisplayName("Json -> Class Convert Test Case 2")
+    public void parameter_convert_test_success_json2Class_without_name_column() throws Exception{
+        String json = "{\n" +
+                "    \"number\":\"123\",\n" +
+                "    \"wrapperNumber\":\"1234\",\n" +
+                "    \"list\" : [\n" +
+                "        {\n" +
+                "            \"test\":\"test\",\n" +
+                "            \"title\":\"title\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"test\":\"test1\",\n" +
+                "            \"title\":\"title2\"\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"map\" : {\n" +
+                "        \"test\":\"123\",\n" +
+                "        \"test1\":\"456\"\n" +
+                "    }\n" +
+                "}";
+        TestDto testDto = objectMapper.readValue(json, TestDto.class);
+
+        assertEquals(123, testDto.getNumber());
+        assertEquals(1234, testDto.getWrapperNumber());
+        assertEquals(2, testDto.getList().size());
+        assertNotNull(testDto.getMap().get("test"));
+        assertNotNull(testDto.getMap().get("test1"));
     }
 }
