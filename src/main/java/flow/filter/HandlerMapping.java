@@ -79,18 +79,16 @@ public class HandlerMapping {
     private void addPostHandler(Class<?> aClass, Method m, MethodType methodType){
         PostMapping declaredAnnotation = m.getDeclaredAnnotation(PostMapping.class);
         String value = declaredAnnotation.value();
-        MethodInvoker methodInvoker = new MethodInvoker(value, methodType, aClass, m);
-
-        if(MethodType.PAGE.equals(methodType)){
-            controller.put(value, methodInvoker);
-        }else{
-            restController.put(value, methodInvoker);
-        }
+        addHandler(aClass, m, methodType, value);
     }
 
     private void addGetMapping(Class<?> aClass, Method m, MethodType methodType){
         GetMapping declaredAnnotation = m.getDeclaredAnnotation(GetMapping.class);
         String value = declaredAnnotation.value();
+        addHandler(aClass, m, methodType, value);
+    }
+
+    private void addHandler(Class<?> aClass, Method m, MethodType methodType, String value){
         MethodInvoker methodInvoker = new MethodInvoker(value, methodType, aClass, m);
 
         if(MethodType.PAGE.equals(methodType)){
@@ -113,6 +111,7 @@ public class HandlerMapping {
             }
         } catch (InvocationTargetException | IllegalAccessException | InstantiationException | IOException e) {
             e.printStackTrace();
+            return null;
         }
 
         return null;
