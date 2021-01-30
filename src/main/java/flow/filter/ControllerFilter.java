@@ -1,9 +1,17 @@
 package flow.filter;
 
+import flow.filter.handler.HandlerMapping;
+import flow.filter.invoker.MethodInvoker;
+import flow.resolver.request.RequestResolver;
+import flow.resolver.request.RequestResolverFactory;
+import flow.resolver.response.ResponseResolver;
+import flow.resolver.response.ResponseResolverFactory;
+
+import javax.management.ServiceNotFoundException;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 
 public class ControllerFilter implements Filter {
 
@@ -18,21 +26,18 @@ public class ControllerFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         String method = request.getMethod();
-        String requestURI = request.getRequestURI();
 
         if(isAccessible(method)) {
-            if (handlerMapping.isPageRequest(requestURI)) {
-                Object invoke = handlerMapping.invoke(request);
-                RequestDispatcher requestDispatcher = servletRequest.getRequestDispatcher(invoke.toString());
-                requestDispatcher.forward(servletRequest, servletResponse);
-            } else if (handlerMapping.isApiRequest(requestURI)) {
-                Object invoke = handlerMapping.invoke(request);
-                servletResponse.setContentType("application/json");
-
-                try (PrintWriter writer = servletResponse.getWriter()) {
-                    writer.write("{ \"result\": \"" + invoke.toString() + "\"}");
-                    writer.flush();
-                }
+            try {
+                final MethodInvoker handler = handlerMapping.getHandler(request);
+                RequestResolver resolver = RequestResolverFactory.getResolver(request);
+                final Object invoke = handler.invoke(resolver.getParameter(request, handler.getMethod()));
+                final ResponseResolver responseResolver = ResponseResolverFactory.getResponseResolver(handler);
+                responseResolver.resolve(request, servletResponse, invoke);
+            } catch (ServiceNotFoundException e) {
+                throw new ServletException("존재하지 않는 URI입니다.");
+            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                throw new IOException("처리하던 중 오류가 발생했습니다." + e.getMessage());
             }
         }else {
             filterChain.doFilter(servletRequest, servletResponse);

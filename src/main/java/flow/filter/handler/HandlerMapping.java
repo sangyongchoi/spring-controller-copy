@@ -1,17 +1,17 @@
-package flow.filter;
+package flow.filter.handler;
 
 import flow.MainApplication;
 import flow.annotation.Controller;
 import flow.annotation.GetMapping;
 import flow.annotation.PostMapping;
 import flow.annotation.RestController;
-import flow.common.CommonUtil;
+import flow.filter.invoker.MethodInvoker;
 
+import javax.management.ServiceNotFoundException;
 import javax.servlet.http.HttpServletRequest;
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,59 +62,51 @@ public class HandlerMapping {
 
     private void addPageHandler(Class<?> aClass, Method m) {
         if (m.isAnnotationPresent(PostMapping.class)) {
-            addPostHandler(aClass, m, MethodType.PAGE);
+            addPostHandler(aClass, m, RequestType.PAGE);
         } else if (m.isAnnotationPresent(GetMapping.class)) {
-            addGetMapping(aClass, m, MethodType.PAGE);
+            addGetHandler(aClass, m, RequestType.PAGE);
         }
     }
 
     private void addRestHandler(Class<?> aClass, Method m) {
         if (m.isAnnotationPresent(PostMapping.class)) {
-            addPostHandler(aClass, m, MethodType.POST);
+            addPostHandler(aClass, m, RequestType.POST);
         } else if (m.isAnnotationPresent(GetMapping.class)) {
-            addGetMapping(aClass, m, MethodType.GET);
+            addGetHandler(aClass, m, RequestType.GET);
         }
     }
 
-    private void addPostHandler(Class<?> aClass, Method m, MethodType methodType){
+    private void addPostHandler(Class<?> aClass, Method m, RequestType requestType){
         PostMapping declaredAnnotation = m.getDeclaredAnnotation(PostMapping.class);
         String value = declaredAnnotation.value();
-        addHandler(aClass, m, methodType, value);
+        addHandler(aClass, m, requestType, value);
     }
 
-    private void addGetMapping(Class<?> aClass, Method m, MethodType methodType){
+    private void addGetHandler(Class<?> aClass, Method m, RequestType requestType){
         GetMapping declaredAnnotation = m.getDeclaredAnnotation(GetMapping.class);
         String value = declaredAnnotation.value();
-        addHandler(aClass, m, methodType, value);
+        addHandler(aClass, m, requestType, value);
     }
 
-    private void addHandler(Class<?> aClass, Method m, MethodType methodType, String value){
-        MethodInvoker methodInvoker = new MethodInvoker(value, methodType, aClass, m);
+    private void addHandler(Class<?> aClass, Method m, RequestType requestType, String value){
+        MethodInvoker methodInvoker = new MethodInvoker(aClass, m, requestType);
 
-        if(MethodType.PAGE.equals(methodType)){
+        if(RequestType.PAGE.equals(requestType)){
             controller.put(value, methodInvoker);
         }else{
             restController.put(value, methodInvoker);
         }
     }
 
-    public Object invoke(HttpServletRequest request) {
-        try{
-            String requestURI = request.getRequestURI();
-
-            if (isApiRequest(requestURI)) {
-                MethodInvoker methodInvoker = restController.get(requestURI);
-                return methodInvoker.invoke(getParameter(request, methodInvoker.getMethod()));
-            } else if (isPageRequest(requestURI)) {
-                MethodInvoker methodInvoker = controller.get(requestURI);
-                return methodInvoker.invoke(getParameter(request, methodInvoker.getMethod()));
-            }
-        } catch (InvocationTargetException | IllegalAccessException | InstantiationException | IOException e) {
-            e.printStackTrace();
-            return null;
+    public MethodInvoker getHandler(HttpServletRequest request) throws ServiceNotFoundException {
+        String requestURI = request.getRequestURI();
+        if (isApiRequest(requestURI)) {
+            return restController.get(requestURI);
+        } else if (isPageRequest(requestURI)) {
+            return controller.get(requestURI);
+        } else {
+            throw new ServiceNotFoundException("");
         }
-
-        return null;
     }
 
     public boolean isPageRequest(String requestURI) {
@@ -123,37 +115,5 @@ public class HandlerMapping {
 
     public boolean isApiRequest(String requestURI) {
         return restController.containsKey(requestURI);
-    }
-
-    private Object[] getParameter(HttpServletRequest request, Method method) throws IOException {
-        Parameter[] parameters = method.getParameters();
-        if (parameters.length == 0) {
-            return new Object[0];
-        }
-
-        String body = getBody(request);
-        Object[] result = new Object[1];
-        Parameter parameter = parameters[0];
-        result[0] = CommonUtil.objectMapper.readValue(body, parameter.getType());
-
-        return result;
-    }
-
-    private String getBody(HttpServletRequest request) throws IOException {
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        try(InputStream inputStream = request.getInputStream()) {
-            if (inputStream != null) {
-                try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
-                    char[] charBuffer = new char[128];
-                    int bytesRead = -1;
-                    while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-                        stringBuilder.append(charBuffer, 0, bytesRead);
-                    }
-                }
-            }
-        }
-        return stringBuilder.toString();
     }
 }

@@ -1,20 +1,20 @@
-package flow.filter;
+package flow.filter.invoker;
+
+import flow.filter.handler.RequestType;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class MethodInvoker {
 
-    private String path;
-    private MethodType methodType;
     private Class<?> aClass;
     private Method method;
+    private RequestType requestType;
 
-    public MethodInvoker(String path, MethodType methodType, Class<?> aClass, Method method) {
-        this.path = path;
-        this.methodType = methodType;
+    public MethodInvoker(Class<?> aClass, Method method, RequestType requestType) {
         this.aClass = aClass;
         this.method = method;
+        this.requestType = requestType;
     }
 
     public Object invoke(Object[] parameter) throws InvocationTargetException, IllegalAccessException, InstantiationException {
@@ -32,5 +32,9 @@ public class MethodInvoker {
 
     public Method getMethod() {
         return method;
+    }
+
+    public RequestType getRequestType() {
+        return requestType;
     }
 }
