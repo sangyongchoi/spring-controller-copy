@@ -1,7 +1,6 @@
-package flow.filter;
+package flow.filter.handler;
 
 import flow.TestApplication;
-import flow.filter.handler.HandlerMapping;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
