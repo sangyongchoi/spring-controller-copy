@@ -1,6 +1,5 @@
 package flow.filter.handler;
 
-import flow.MainApplication;
 import flow.annotation.Controller;
 import flow.annotation.GetMapping;
 import flow.annotation.PostMapping;
@@ -8,7 +7,6 @@ import flow.annotation.RestController;
 import flow.filter.invoker.MethodInvoker;
 
 import javax.management.ServiceNotFoundException;
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -108,11 +106,11 @@ public class HandlerMapping {
         }
     }
 
-    public boolean isPageRequest(String requestURI) {
+    private boolean isPageRequest(String requestURI) {
         return controller.containsKey(requestURI);
     }
 
-    public boolean isApiRequest(String requestURI) {
+    private boolean isApiRequest(String requestURI) {
         return restController.containsKey(requestURI);
     }
 }
