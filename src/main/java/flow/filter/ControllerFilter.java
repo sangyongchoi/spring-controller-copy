@@ -1,5 +1,6 @@
 package flow.filter;
 
+import flow.MainApplication;
 import flow.filter.handler.HandlerMapping;
 import flow.filter.invoker.MethodInvoker;
 import flow.resolver.request.RequestResolver;
@@ -19,17 +20,18 @@ public class ControllerFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) {
-        handlerMapping.init();
+        handlerMapping.init(MainApplication.class);
     }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         String method = request.getMethod();
+        final String requestURI = request.getRequestURI();
 
         if(isAccessible(method)) {
             try {
-                final MethodInvoker handler = handlerMapping.getHandler(request);
+                final MethodInvoker handler = handlerMapping.getHandler(requestURI);
                 RequestResolver resolver = RequestResolverFactory.getResolver(request);
                 final Object invoke = handler.invoke(resolver.getParameter(request, handler.getMethod()));
                 final ResponseResolver responseResolver = ResponseResolverFactory.getResponseResolver(handler);

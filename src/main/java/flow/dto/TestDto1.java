@@ -14,4 +14,12 @@ public class TestDto1 {
     public String getPassword() {
         return password;
     }
+
+    @Override
+    public String toString() {
+        return "TestDto1{" +
+                "name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

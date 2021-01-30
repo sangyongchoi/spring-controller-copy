@@ -21,8 +21,8 @@ public class HandlerMapping {
     Map<String, MethodInvoker> controller = new HashMap<>();
     Map<String, MethodInvoker> restController = new HashMap<>();
 
-    public void init(){
-        subDirList(MainApplication.class.getResource(".").getPath());
+    public void init(Class<?> tClass){
+        subDirList(tClass.getResource(".").getPath());
     }
 
     private void subDirList(String source) {
@@ -98,8 +98,7 @@ public class HandlerMapping {
         }
     }
 
-    public MethodInvoker getHandler(HttpServletRequest request) throws ServiceNotFoundException {
-        String requestURI = request.getRequestURI();
+    public MethodInvoker getHandler(String requestURI) throws ServiceNotFoundException {
         if (isApiRequest(requestURI)) {
             return restController.get(requestURI);
         } else if (isPageRequest(requestURI)) {
