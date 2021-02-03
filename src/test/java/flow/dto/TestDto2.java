@@ -1,17 +1,14 @@
 package flow.dto;
 
-public class TestDto1 {
-    String name;
-    int password;
-
-    public TestDto1() {
-    }
+public class TestDto2 {
+    private String name;
+    private String password;
 
     public String getName() {
         return name;
     }
 
-    public int getPassword() {
+    public String getPassword() {
         return password;
     }
 
@@ -19,7 +16,7 @@ public class TestDto1 {
     public String toString() {
         return "TestDto1{" +
                 "name='" + name + '\'' +
-                ", password=" + password +
+                ", password='" + password + '\'' +
                 '}';
     }
 }

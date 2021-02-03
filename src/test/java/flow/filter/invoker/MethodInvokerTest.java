@@ -65,6 +65,7 @@ class MethodInvokerTest {
                 "        \"test1\":\"456\"\n" +
                 "    }\n" +
                 "}";
+
         return objectMapper.readValue(json, TestDto.class);
     }
 }
