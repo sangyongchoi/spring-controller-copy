@@ -2,6 +2,7 @@ package flow.resolver.request;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import flow.controller.RestTestController;
 import flow.dto.TestDto1;
 import org.junit.jupiter.api.DisplayName;
@@ -12,8 +13,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import static org.easymock.EasyMock.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FormRequestResolverTest {
 
@@ -36,6 +36,26 @@ class FormRequestResolverTest {
 
         assertEquals("name", request.getParameter("name"));
         assertEquals("password", request.getParameter("password"));
+    }
+
+    @Test
+    @DisplayName("Form_데이터_변환_실패_테스트")
+    public void Form_데이터_변환_실패_테스트() throws Exception{
+        assertThrows(InvalidFormatException.class, () -> {
+            HttpServletRequest  request = createMock(HttpServletRequest.class);
+            List<String> parameterNames = new ArrayList<>();
+            parameterNames.add("name");
+            parameterNames.add("password");
+
+            expect(request.getParameter("name")).andReturn("name").times(1, 2);
+            expect(request.getParameter("password")).andReturn("abc").times(1, 2);
+            expect(request.getParameterNames()).andReturn(Collections.enumeration(parameterNames));
+
+            replay(request);
+
+            Method method = RestTestController.class.getMethod("restPostMapping", TestDto1.class);
+            final Object[] parameter = resolver.getParameter(request, method);
+        });
     }
 
     @Test
