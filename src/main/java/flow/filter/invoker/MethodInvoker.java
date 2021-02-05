@@ -17,7 +17,7 @@ public class MethodInvoker {
         this.requestType = requestType;
     }
 
-    public Object invoke(Object[] parameter) throws InvocationTargetException, IllegalAccessException, InstantiationException {
+    public Object invoke(Object[] parameter) throws IllegalAccessException, InstantiationException, InvocationTargetException {
         try{
             if(parameter.length == 0) {
                 return method.invoke(aClass.newInstance());
