@@ -2,6 +2,7 @@ package flow.filter.handler;
 
 import flow.TestApplication;
 import flow.controller.RestTestController;
+import flow.exception.NotFoundException;
 import flow.fail.FailTestController;
 import flow.exception.HandlerCreateException;
 import org.junit.jupiter.api.DisplayName;
@@ -29,7 +30,7 @@ class HandlerMappingTest {
     @Test
     @DisplayName("Handler Not Found")
     public void notfound_handler() throws Exception{
-        assertThrows(ServiceNotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             HandlerMapping handlerMapping = new HandlerMapping();
             handlerMapping.init(RestTestController.class);
 

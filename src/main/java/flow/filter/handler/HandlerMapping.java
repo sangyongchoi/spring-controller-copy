@@ -5,6 +5,7 @@ import flow.annotation.GetMapping;
 import flow.annotation.PostMapping;
 import flow.annotation.RestController;
 import flow.exception.HandlerCreateException;
+import flow.exception.NotFoundException;
 import flow.exception.code.ErrorCode;
 import flow.filter.invoker.MethodInvoker;
 
@@ -105,13 +106,13 @@ public class HandlerMapping {
         return restController.get(key) != null || controller.get(key) != null;
     }
 
-    public MethodInvoker getHandler(String requestURI) throws ServiceNotFoundException {
+    public MethodInvoker getHandler(String requestURI) {
         if (isApiRequest(requestURI)) {
             return restController.get(requestURI);
         } else if (isPageRequest(requestURI)) {
             return controller.get(requestURI);
         } else {
-            throw new ServiceNotFoundException("");
+            throw new NotFoundException(ErrorCode.ERROR_HANDLER_NOT_FOUND);
         }
     }
 

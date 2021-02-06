@@ -36,8 +36,6 @@ public class ControllerFilter implements Filter {
                 final Object invoke = handler.invoke(resolver.getParameter(request, handler.getMethod()));
                 final ResponseResolver responseResolver = ResponseResolverFactory.getResponseResolver(handler);
                 responseResolver.resolve(request, servletResponse, invoke);
-            } catch (ServiceNotFoundException e) {
-                throw new ServletException("존재하지 않는 URI입니다.");
             } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
                 throw new IOException("처리하던 중 오류가 발생했습니다." + e.getMessage());
             }
