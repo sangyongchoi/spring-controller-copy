@@ -3,6 +3,7 @@ package flow.filter.invoker;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import flow.controller.RestTestController;
 import flow.dto.TestDto1;
+import flow.exception.MethodInvokeException;
 import flow.filter.handler.RequestType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,16 @@ class MethodInvokerTest {
         final Object invoke = invoker.invoke(new Object[]{testDto});
 
         assertEquals("post", invoke.toString());
+    }
+
+    @Test
+    @DisplayName("메소드 실행 실패 테스트 - Exception")
+    public void method_invoke_fail_exception_test() throws Exception{
+        assertThrows(MethodInvokeException.class, () -> {
+            Method m = RestTestController.class.getMethod("failTestMethod");
+            MethodInvoker invoker = new MethodInvoker(RestTestController.class, m, RequestType.POST);
+            final Object invoke = invoker.invoke(new Object[0]);
+        });
     }
 
     @Test

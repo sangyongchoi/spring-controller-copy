@@ -17,4 +17,9 @@ public class RestTestController {
     public String restGetMapping(){
         return "get";
     }
+
+    @GetMapping("/failTest")
+    public void failTestMethod() throws Exception {
+        throw new Exception();
+    }
 }

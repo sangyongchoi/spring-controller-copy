@@ -1,5 +1,7 @@
 package flow.filter.invoker;
 
+import flow.exception.MethodInvokeException;
+import flow.exception.code.ErrorCode;
 import flow.filter.handler.RequestType;
 
 import java.lang.reflect.InvocationTargetException;
@@ -17,7 +19,7 @@ public class MethodInvoker {
         this.requestType = requestType;
     }
 
-    public Object invoke(Object[] parameter) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public Object invoke(Object[] parameter) {
         try{
             if(parameter.length == 0) {
                 return method.invoke(aClass.newInstance());
@@ -25,8 +27,7 @@ public class MethodInvoker {
                 return method.invoke(aClass.newInstance(), parameter);
             }
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            e.printStackTrace();
-            throw e;
+            throw new MethodInvokeException(e.getMessage(), ErrorCode.ERROR_METHOD_INVOKE);
         }
     }
 

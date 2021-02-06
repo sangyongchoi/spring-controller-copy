@@ -1,14 +1,11 @@
 package flow.filter.handler;
 
-import flow.TestApplication;
 import flow.controller.RestTestController;
+import flow.exception.HandlerCreateException;
 import flow.exception.NotFoundException;
 import flow.fail.FailTestController;
-import flow.exception.HandlerCreateException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import javax.management.ServiceNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;

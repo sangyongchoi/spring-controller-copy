@@ -30,15 +30,11 @@ public class ControllerFilter implements Filter {
         final String requestURI = request.getRequestURI();
 
         if(isAccessible(method)) {
-            try {
-                final MethodInvoker handler = handlerMapping.getHandler(requestURI);
-                RequestResolver resolver = RequestResolverFactory.getResolver(request);
-                final Object invoke = handler.invoke(resolver.getParameter(request, handler.getMethod()));
-                final ResponseResolver responseResolver = ResponseResolverFactory.getResponseResolver(handler);
-                responseResolver.resolve(request, servletResponse, invoke);
-            } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-                throw new IOException("처리하던 중 오류가 발생했습니다." + e.getMessage());
-            }
+            final MethodInvoker handler = handlerMapping.getHandler(requestURI);
+            RequestResolver resolver = RequestResolverFactory.getResolver(request);
+            final Object invoke = handler.invoke(resolver.getParameter(request, handler.getMethod()));
+            final ResponseResolver responseResolver = ResponseResolverFactory.getResponseResolver(handler);
+            responseResolver.resolve(request, servletResponse, invoke);
         }else {
             filterChain.doFilter(servletRequest, servletResponse);
         }
