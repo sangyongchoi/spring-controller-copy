@@ -1,5 +1,7 @@
 package flow.exception.code;
 
 public enum ErrorType {
-    UNKNOWN
+    UNKNOWN,
+    HANDLER_CREATE_EXCEPTION,
+    ;
 }

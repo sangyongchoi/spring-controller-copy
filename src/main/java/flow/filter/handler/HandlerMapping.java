@@ -4,6 +4,8 @@ import flow.annotation.Controller;
 import flow.annotation.GetMapping;
 import flow.annotation.PostMapping;
 import flow.annotation.RestController;
+import flow.exception.HandlerCreateException;
+import flow.exception.code.ErrorCode;
 import flow.filter.invoker.MethodInvoker;
 
 import javax.management.ServiceNotFoundException;
@@ -53,7 +55,7 @@ public class HandlerMapping {
                     }
                 }
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+                throw new HandlerCreateException(ErrorCode.ERROR_HANDLER_CREATE);
             }
         }
     }
@@ -88,12 +90,19 @@ public class HandlerMapping {
 
     private void addHandler(Class<?> aClass, Method m, RequestType requestType, String value){
         MethodInvoker methodInvoker = new MethodInvoker(aClass, m, requestType);
+        if (isHandlerExists(value)) {
+            throw new HandlerCreateException(value + " 중복된 URI입니다", ErrorCode.ERROR_HANDLER_CREATE);
+        }
 
         if(RequestType.PAGE.equals(requestType)){
             controller.put(value, methodInvoker);
         }else{
             restController.put(value, methodInvoker);
         }
+    }
+
+    private boolean isHandlerExists(String key){
+        return restController.get(key) != null || controller.get(key) != null;
     }
 
     public MethodInvoker getHandler(String requestURI) throws ServiceNotFoundException {
